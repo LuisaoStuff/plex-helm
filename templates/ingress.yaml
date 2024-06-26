@@ -10,7 +10,7 @@ spec:
   tls:
     - hosts:
         - {{ .Values.ingress.host }}
-      secretName: cloudflare-tls
+      secretName: {{ .Values.ingress.tls.name }}
   rules:
   - host: {{ .Values.ingress.host }}
     http:

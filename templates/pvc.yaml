@@ -1,0 +1,19 @@
+{{ $common := .Values }}
+{{ $fullname := include "plex.fullname" . }}
+{{ range $name, $size := .Values.storage.sizes }}
+{{ $name := $name | snakecase | replace "_" "-" }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-%s" ($fullname) ($name) }}
+  namespace: {{ $common.namespace }}
+spec:
+  storageClassName: {{ $common.storage.className }}
+  accessModes:
+  - ReadWriteMany
+  volumeName: {{ printf "%s-%s" ($fullname) ($name) }}
+  resources:
+    requests:
+      storage: {{ $size }}
+{{- end }}

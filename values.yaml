@@ -1,0 +1,105 @@
+# Default values for plex.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: linuxserver/plex
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+namespace: plex
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: "plex-mediaserver"
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 1000
+  fsUser: 1000
+
+securityContext:
+  readOnlyRootFilesystem: false
+  runAsNonRoot: false
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  ingressPort:
+    name: media-server
+    number: 32400
+    protocol: TCP
+  ports:
+  - name: a-dlna-server
+    number: 32469
+    protocol: TCP
+
+
+ingress:
+  enabled: false
+  className: ""
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+  host: plex.luisva.com
+  path: /
+  pathType: Prexix
+  tls:
+    enabled: true
+    name: tls-secret
+    cert: base64EncodedCertificate
+    key: base64EncodedKey
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+livenessProbe:
+  httpGet:
+    path: /web
+    port: http
+readinessProbe:
+  httpGet:
+    path: /web
+    port: http
+
+storage:
+  className: local-storage        # By setting this, you can adjust the storage class for your volumes
+  basePath: /nas/plex-data
+  hostname: cronos
+  sizes:
+    config: 50Gi
+    transcode: 10Gi
+    peliculas: 100Gi
+    series: 100Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+environmentVariables:
+  TZ: Europe/Madrid
+  version: docker
+  PUID: 1000
+  PGID: 1000
